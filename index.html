@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Hyrox">
+<meta name="theme-color" content="#080808">
+<title>Hyrox Training Block</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;500;600;700;800;900&family=Barlow:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --volt: #C8F000;
+    --volt-glow: rgba(200,240,0,0.22);
+    --volt-faint: rgba(200,240,0,0.07);
+    --teal: #00C8A0;
+    --teal-glow: rgba(0,200,160,0.18);
+    --teal-faint: rgba(0,200,160,0.06);
+    --white: #edeae4;
+    --ink: #080808;
+    --ink2: #101010;
+    --ink3: #181818;
+    --muted: #505050;
+    --muted2: #3a3a3a;
+    --border: rgba(255,255,255,0.055);
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--ink); color: var(--white); font-family: 'Barlow', sans-serif; font-weight: 300; overscroll-behavior: none; }
+
+  body::before {
+    content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
+    background-image: repeating-linear-gradient(180deg, transparent 0px, transparent 79px, rgba(255,255,255,0.02) 79px, rgba(255,255,255,0.02) 80px);
+  }
+
+  .app { position: relative; z-index: 1; min-height: 100vh; min-height: -webkit-fill-available; padding-top: calc(var(--safe-top) + 0px); padding-bottom: calc(var(--safe-bottom) + 72px); }
+
+  .hero {
+    position: relative; padding: calc(var(--safe-top) + 20px) 20px 18px;
+    border-bottom: 1px solid var(--border); overflow: hidden;
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, var(--volt), transparent 50%); opacity: 0.45;
+  }
+  .hero-top { display: flex; align-items: flex-start; justify-content: space-between; }
+  .wordmark { font-family: 'Barlow Condensed', sans-serif; font-weight: 900; font-size: 44px; letter-spacing: -0.02em; text-transform: uppercase; color: var(--white); line-height: 0.9; }
+  .wordmark .hl { color: var(--volt); }
+  .reborn-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); padding: 4px 8px; border: 1px solid var(--muted2); border-radius: 1px; margin-top: 4px; }
+  .hero-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-top: 8px; }
+
+  .progress-wrap { padding: 13px 20px; border-bottom: 1px solid var(--border); background: var(--ink2); }
+  .progress-meta { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .progress-label { font-family: 'Barlow Condensed', sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .progress-pct { font-family: 'Barlow Condensed', sans-serif; font-size: 24px; font-weight: 900; color: var(--volt); letter-spacing: -0.03em; }
+  .track { height: 2px; background: var(--muted2); position: relative; }
+  .fill { height: 100%; background: var(--volt); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); position: relative; box-shadow: 0 0 6px var(--volt-glow); }
+  .fill::after { content: ''; position: absolute; right: -5px; top: -5px; width: 12px; height: 12px; border-radius: 50%; background: var(--volt); box-shadow: 0 0 12px var(--volt); }
+
+  .stats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
+  .stat { background: var(--ink); padding: 10px 12px; text-align: center; }
+  .stat-val { font-family: 'Barlow Condensed', sans-serif; font-size: 20px; font-weight: 800; color: var(--white); display: block; letter-spacing: -0.02em; }
+  .stat-lbl { font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-top: 1px; }
+
+  .phase-tabs { display: flex; gap: 6px; padding: 11px 20px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); background: var(--ink2); }
+  .phase-tabs::-webkit-scrollbar { display: none; }
+  .ptab { flex-shrink: 0; padding: 5px 11px; border-radius: 1px; border: 1px solid var(--muted2); font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); cursor: pointer; background: transparent; transition: all 0.15s; }
+  .ptab.ap1, .ptab.ap3 { border-color: var(--volt); color: var(--volt); background: var(--volt-faint); }
+  .ptab.ap2 { border-color: var(--teal); color: var(--teal); background: var(--teal-faint); }
+
+  .week-scroller { display: flex; gap: 7px; padding: 11px 20px; overflow-x: auto; scrollbar-width: none; border-bottom: 1px solid var(--border); }
+  .week-scroller::-webkit-scrollbar { display: none; }
+  .wbtn { flex-shrink: 0; width: 38px; height: 38px; border-radius: 2px; border: 1px solid var(--muted2); background: transparent; font-family: 'Barlow Condensed', sans-serif; font-size: 16px; font-weight: 800; color: var(--muted); cursor: pointer; position: relative; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+  .wbtn.p1, .wbtn.p3 { border-color: rgba(200,240,0,0.2); }
+  .wbtn.p2 { border-color: rgba(0,200,160,0.2); }
+  .wbtn.aw.p1, .wbtn.aw.p3 { background: var(--volt); border-color: var(--volt); color: #000; box-shadow: 0 0 14px var(--volt-glow); }
+  .wbtn.aw.p2 { background: var(--teal); border-color: var(--teal); color: #000; box-shadow: 0 0 14px var(--teal-glow); }
+  .done-pip { position: absolute; bottom: -2px; right: -2px; width: 9px; height: 9px; border-radius: 50%; background: var(--volt); border: 2px solid var(--ink); }
+
+  .week-head { padding: 13px 20px 7px; display: flex; align-items: center; justify-content: space-between; }
+  .week-title { font-family: 'Barlow Condensed', sans-serif; font-size: 32px; font-weight: 900; text-transform: uppercase; letter-spacing: -0.02em; color: var(--white); }
+  .week-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; padding: 4px 9px; border-radius: 1px; }
+  .wb-p1, .wb-p3 { background: var(--volt-faint); color: var(--volt); border: 1px solid rgba(200,240,0,0.28); }
+  .wb-p2 { background: var(--teal-faint); color: var(--teal); border: 1px solid rgba(0,200,160,0.28); }
+
+  .phase-focus { margin: 0 20px 11px; padding: 9px 11px; background: var(--ink3); border-left: 2px solid var(--volt); font-size: 12px; font-weight: 300; color: var(--muted); line-height: 1.65; }
+  .phase-focus.p2 { border-left-color: var(--teal); }
+
+  .sessions { padding: 0 20px; display: flex; flex-direction: column; gap: 6px; }
+
+  .card { background: var(--ink2); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; transition: border-color 0.2s; }
+  .card.done { border-color: rgba(200,240,0,0.28); background: rgba(200,240,0,0.025); }
+
+  .card-head { display: flex; align-items: center; gap: 8px; padding: 11px 11px; cursor: pointer; user-select: none; }
+
+  .day-pill { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 7px; border-radius: 1px; min-width: 70px; text-align: center; flex-shrink: 0; }
+  .d-tue { background: var(--volt-faint); color: var(--volt); border: 1px solid rgba(200,240,0,0.2); }
+  .d-wed { background: var(--teal-faint); color: var(--teal); border: 1px solid rgba(0,200,160,0.2); }
+  .d-thu { background: rgba(200,160,0,0.07); color: #C8A000; border: 1px solid rgba(200,160,0,0.18); }
+  .d-fri { background: var(--teal-faint); color: #5a9888; border: 1px solid rgba(0,200,160,0.12); }
+  .d-sat { background: rgba(160,160,160,0.05); color: #666; border: 1px solid rgba(160,160,160,0.12); }
+  .d-sun { background: rgba(200,240,0,0.04); color: #8a9e20; border: 1px solid rgba(200,240,0,0.12); }
+
+  .card-title { flex: 1; font-size: 13px; font-weight: 500; color: var(--white); line-height: 1.3; }
+
+  .type-tag { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 2px 6px; border-radius: 1px; flex-shrink: 0; }
+  .tt-run { background: var(--volt-faint); color: var(--volt); }
+  .tt-z2 { background: var(--teal-faint); color: var(--teal); }
+  .tt-strength { background: rgba(160,160,160,0.05); color: #555; border: 1px solid rgba(160,160,160,0.1); }
+  .tt-sim { background: rgba(200,240,0,0.05); color: #8a9e20; }
+  .tt-hyrox { background: rgba(200,160,0,0.07); color: #C8A000; }
+  .tt-weak { background: var(--volt-faint); color: var(--volt); border: 1px solid rgba(200,240,0,0.28); }
+
+  .chk { width: 26px; height: 26px; border-radius: 2px; border: 1px solid var(--muted2); background: transparent; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; color: transparent; font-size: 13px; font-weight: 900; font-family: 'Barlow Condensed', sans-serif; }
+  .chk.on { background: var(--volt); border-color: var(--volt); color: #000; box-shadow: 0 0 8px var(--volt-glow); }
+
+  .chevron { font-size: 9px; color: var(--muted); transition: transform 0.2s; flex-shrink: 0; }
+  .chevron.open { transform: rotate(180deg); }
+
+  .card-body { border-top: 1px solid var(--border); padding: 11px 11px 13px; }
+  .session-detail { font-size: 12px; font-weight: 300; color: #777; line-height: 1.9; white-space: pre-line; }
+  .coach-note { margin-top: 10px; padding: 8px 10px; background: rgba(200,240,0,0.04); border-left: 2px solid var(--volt); font-size: 11px; font-weight: 400; color: #7a8e18; line-height: 1.65; }
+  .coach-note strong { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--volt); display: block; margin-bottom: 3px; }
+
+  .feedback-section { margin-top: 12px; border-top: 1px solid var(--border); padding-top: 12px; }
+  .feedback-label { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 8px; }
+  .rating-row { display: flex; gap: 6px; margin-bottom: 12px; }
+  .rating-btn { flex: 1; height: 30px; border-radius: 2px; border: 1px solid var(--muted2); background: transparent; font-family: 'Barlow Condensed', sans-serif; font-size: 13px; font-weight: 700; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+  .rating-btn.sel { background: var(--volt); border-color: var(--volt); color: #000; box-shadow: 0 0 8px var(--volt-glow); }
+  .feedback-textarea { width: 100%; background: var(--ink3); border: 1px solid var(--muted2); border-radius: 2px; color: var(--white); font-family: 'Barlow', sans-serif; font-size: 12px; font-weight: 300; line-height: 1.6; padding: 9px 10px; resize: none; min-height: 80px; outline: none; margin-bottom: 10px; }
+  .feedback-textarea::placeholder { color: var(--muted); }
+  .feedback-textarea:focus { border-color: rgba(200,240,0,0.4); }
+  .save-feedback-btn { width: 100%; padding: 9px; background: transparent; border: 1px solid var(--volt); border-radius: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--volt); cursor: pointer; transition: all 0.15s; margin-bottom: 10px; }
+  .save-feedback-btn:active { background: var(--volt-faint); }
+  .ai-btn { width: 100%; padding: 9px; background: var(--volt); border: none; border-radius: 2px; font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #000; cursor: pointer; transition: all 0.15s; }
+  .ai-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .ai-btn:active { opacity: 0.85; }
+  .ai-response { margin-top: 10px; padding: 10px 11px; background: rgba(200,240,0,0.04); border-left: 2px solid var(--volt); font-size: 12px; font-weight: 300; color: #aaa; line-height: 1.8; white-space: pre-wrap; }
+  .ai-response strong { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--volt); display: block; margin-bottom: 5px; }
+  .ai-thinking { color: var(--muted); font-style: italic; font-size: 11px; }
+  .saved-rating { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+  .saved-rating-num { font-family: 'Barlow Condensed', sans-serif; font-size: 22px; font-weight: 900; color: var(--volt); }
+  .saved-rating-label { font-family: 'Barlow Condensed', sans-serif; font-size: 9px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+  .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: calc(52px + var(--safe-bottom)); background: rgba(8,8,8,0.97); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-top: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: center; padding-top: 13px; }
+  .nav-word { font-family: 'Barlow Condensed', sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+  .nav-x { color: var(--volt); margin: 0 10px; font-size: 13px; line-height: 1; font-family: 'Barlow Condensed', sans-serif; font-weight: 900; }
+
+  @keyframes cardIn { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:none; } }
+  .sessions .card { animation: cardIn 0.18s ease both; }
+  .sessions .card:nth-child(2) { animation-delay:0.04s; }
+  .sessions .card:nth-child(3) { animation-delay:0.08s; }
+  .sessions .card:nth-child(4) { animation-delay:0.12s; }
+  .sessions .card:nth-child(5) { animation-delay:0.16s; }
+  .sessions .card:nth-child(6) { animation-delay:0.20s; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="hero">
+    <div class="hero-top">
+      <div class="wordmark">HY<span class="hl">R</span>OX</div>
+      <div class="reborn-badge">Reborn Athletic</div>
+    </div>
+    <div class="hero-sub">Solo Open Men &nbsp;·&nbsp; 10-Week Training Block</div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span class="progress-label">Block progress</span>
+      <span class="progress-pct" id="pct">0%</span>
+    </div>
+    <div class="track"><div class="fill" id="fill" style="width:0%"></div></div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div class="phase-tabs" id="phaseTabs"></div>
+  <div class="week-scroller" id="weekScroller"></div>
+  <div class="week-head">
+    <div class="week-title" id="weekTitle">Week 1</div>
+    <div class="week-badge wb-p1" id="weekBadge">Foundation</div>
+  </div>
+  <div class="phase-focus" id="phaseFocus"></div>
+  <div class="sessions" id="sessions"></div>
+</div>
+<div class="bottom-nav">
+  <span class="nav-word">Train</span>
+  <span class="nav-x">×</span>
+  <span class="nav-word">Execute</span>
+  <span class="nav-x">×</span>
+  <span class="nav-word">Race</span>
+</div>
+<script>
+const WEEKS=[
+  {phase:1,focus:"Aerobic fitness base + muscle strength. Moving through reps at zone 2/3 HR. Light threshold running introduced.",sessions:[
+    {day:"Tuesday",tag:"run",label:"Intervals",detail:"1.5km warm-up\n6 × 700m @ 3:55–4:00/km — 90s walk recovery\n1km cool-down",note:null},
+    {day:"Wednesday",tag:"z2",label:"Zone 2 run",detail:"60 min easy zone 2 pace\nKeep HR controlled throughout",note:null},
+    {day:"Thursday",tag:"hyrox",label:"Sled + run combos",detail:"3 rounds:\n500m run → 40m sled push 150kg → 300m run → 20m sled push 150kg\n1 min assault bike easy pace between rounds\n\nFinisher (after all 3 rounds):\nDB alternating snatches 3×8 each arm @ 20kg\n\nTotal ~45 min.",note:"Sled push focus — stay low, drive from glutes. Note your time each round. Snatches: same explosive hip drive as the sled — reinforces the pattern while it's fresh."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"70 min easy zone 2 pace",note:null},
+    {day:"Saturday",tag:"strength",label:"Strength",detail:"Trap bar deadlift 4×5\nIncline bench 4×7\nBarbell squats 4×6\nReverse lunges 3×20 @ 20kg\nRDL 3×7\nChest supported row 3×8\nPush-ups 3×15\nDB alternating snatches 3×8 each arm\nPull-ups 3×10\nHanging knee raises 3×12\n20 min C2 bike easy",note:"DB snatches: explosive hip drive from floor to overhead — directly trains the power you need for sled push drive-off."},
+    {day:"Sunday",tag:"sim",label:"The Long Loop — 7 rounds",detail:"~70 min. No rest unless needed. Zone 2–3 effort throughout.\n\n7 rounds:\n400m run\n200m ski erg\n200m row\n20m sled push 100kg\n20m sled pull 100kg\n10 wall balls 9kg\n\nOnce all 7 rounds are done, go straight into the finisher:\n\nFinisher — 3 rounds:\n20 KB swings @ 20kg\n15 DB thrusters @ 12.5kg each\n10 burpee broad jumps\n\nLight load, high volume throughout. The goal is continuous movement. By round 5 your HR will be sitting high — the finisher is the gut check.",note:"First real exposure to sustained time under fatigue. Don't go hard on the main rounds — go steady. The finisher is where you push. Notice where form breaks down and remember it."},
+  ]},
+  {phase:1,focus:"Aerobic base building. Introduce wall balls into combos. Strength session adds lunges for BBJ carry-over.",sessions:[
+    {day:"Tuesday",tag:"run",label:"Intervals",detail:"1.5km warm-up\n5 × 800m @ 3:55/km — 90s jog recovery\n1km cool-down",note:null},
+    {day:"Wednesday",tag:"z2",label:"Zone 2 run",detail:"60 min easy zone 2 pace",note:null},
+    {day:"Thursday",tag:"hyrox",label:"Run / sled / wall balls",detail:"3 rounds:\n600m run @ 4:00/km → 50m sled push 150kg → 400m run @ 4:00/km → 20 wall balls 9kg\n60s rest between rounds\n\nFinisher:\nKB swings 3×20 @ 24kg\n\nTotal ~50 min.",note:"Wall balls — drive through hips, full depth squat. Aim to hold sets unbroken. KB swings after: posterior chain flush while it's fatigued — builds the same hip hinge endurance you need for BBJ."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"70 min easy zone 2 pace",note:null},
+    {day:"Saturday",tag:"strength",label:"Strength",detail:"Trap bar deadlift 4×5\nIncline bench 4×7\nBarbell squats 4×6\nReverse lunges 3×20 @ 20kg\nRDL 3×7\nChest supported row 3×8\nPush-ups 3×15\nKB swings 3×20 @ 24kg\nPull-ups 3×10\nHanging knee raises 3×12\n20 min C2 bike easy",note:"KB swings: posterior chain power — trains the same hip extension pattern as burpee broad jump takeoff. Lunges: slow eccentric, full range."},
+    {day:"Sunday",tag:"sim",label:"Descending ladder + finisher",detail:"~70 min. Start each round with a run, then descend the station reps.\n\nRound 1: 800m run → 50 wall balls 9kg → 40m walking lunges\nRound 2: 800m run → 40 wall balls → 30m walking lunges\nRound 3: 800m run → 30 wall balls → 20m walking lunges\nRound 4: 800m run → 20 wall balls → 10m walking lunges\nRound 5: 800m run → 10 wall balls → 200m farmer carry 2×16kg KB\n\nRest only as needed between rounds.\n\nFinisher — 4 rounds for time:\n200m ski erg\n15 DB alternating snatches @ 17.5kg\n20m sled pull 100kg\n\nNo rest in the finisher. Get it done.",note:"The ladder feels easier as reps drop — use that momentum to push the pace in rounds 4 and 5. The finisher is hard by design: ski, snatch, sled pull in sequence trains the exact pulling muscle chain you need for race day."},
+  ]},
+  {phase:1,focus:"Aerobic base + longer intervals. Lunge volume up. BBJ mechanics in sim.",sessions:[
+    {day:"Tuesday",tag:"run",label:"Intervals — 1km reps",detail:"1.5km warm-up\n5 × 1km @ sub 4:00/km — 90s rest\n1km cool-down",note:null},
+    {day:"Wednesday",tag:"z2",label:"Zone 2 run",detail:"60 min easy zone 2 pace",note:null},
+    {day:"Thursday",tag:"hyrox",label:"Run / lunges combos",detail:"5 rounds:\n400m run @ 4:00/km → 40m walking lunges 20kg → 400m run @ 4:00/km → 20m walking lunges 20kg\n\nFinisher:\nDB thrusters 3×10 @ 15kg each\n\nTotal ~55 min.",note:"Lunges build hip extension and posterior chain for BBJ. DB thrusters at the end: your legs are already loaded — this directly mimics wall ball mechanics when your lower body is cooked."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"75 min easy zone 2 pace",note:null},
+    {day:"Saturday",tag:"strength",label:"Strength",detail:"Trap bar deadlift 4×5\nIncline bench 4×7\nBarbell squats 4×6\nReverse lunges 3×20 @ 20kg\nRDL 3×7\nChest supported row 3×8\nPush-ups 3×15\nDB thrusters 3×12 @ 15kg each\nPull-ups 4×6\nHanging knee raises 3×12\n20 min C2 bike easy",note:"DB thrusters: squat-to-press combo directly mimics wall ball mechanics — same hip drive, same overhead finish. Builds wall ball capacity off the rack."},
+    {day:"Sunday",tag:"sim",label:"The Engine Builder",detail:"~65 min. Pure aerobic engine work — machines and running only.\n\n1000m row @ easy pace\n1000m ski erg @ easy pace\n1km run @ 4:30/km\n800m row\n800m ski erg\n1km run @ 4:20/km\n600m row\n600m ski erg\n1km run @ 4:10/km\n400m row\n400m ski erg\n1km run @ 4:00/km\n\nNo breaks. Continuous with a negative split on every run.",note:"The machines keep HR elevated so each run starts with legs already heavy. By the final 1km you'll know exactly what race-day running fatigue feels like."},
+  ]},
+  {phase:1,focus:"Phase 1 capstone. All four weaknesses in one combo. Light deload on Saturday.",sessions:[
+    {day:"Tuesday",tag:"run",label:"Mixed pace intervals",detail:"1.5km warm-up\n5 × (600m @ 4:10/km into 400m @ 3:50/km) — 90s rest\n1km cool-down",note:"Negative split within each rep trains the same discomfort as running after a station."},
+    {day:"Wednesday",tag:"z2",label:"Zone 2 run",detail:"60 min easy zone 2 pace",note:null},
+    {day:"Thursday",tag:"hyrox",label:"Full weakness combo",detail:"3 rounds:\n50m sled push 150kg → 400m run @ 4:00/km → 50m burpee broad jumps → 400m run @ 4:00/km → 30 wall balls\nFull rest between rounds.\n\nFinisher:\nDevils press 3×6 @ 12.5kg DBs\n\nTotal ~60 min.",note:"All 4 weaknesses in sequence — focus on keeping run pace honest. Devils press finisher: burpee + snatch at the end of an already fatigued session. This is exactly the kind of full-body fatigue you're training to resist."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"75 min zone 2 pace",note:null},
+    {day:"Saturday",tag:"strength",label:"Light full body",detail:"Light full body — keep intensity low.\nMobility: hip flexors, thoracic, ankle.\nOptional: 100m sled pull for time (light).",note:null},
+    {day:"Sunday",tag:"sim",label:"All 8 stations — race order",detail:"~70 min. Every Hyrox movement once in race order at aerobic effort. No running between stations this week — pure station sequence.\n\n1000m ski erg\n50m sled push 140kg\n50m sled pull 100kg\n80m burpee broad jumps\n1000m row\n200m farmer carry 2×16kg KB\n100m sandbag lunges 10kg bag\n100 wall balls 9kg\n\nMove straight from one to the next. Rest 60–90s only if form is breaking down.",note:"Phase 1 capstone. The point isn't to go fast — it's to survive with good form. Note which stations spike your HR the most. That's your data."},
+  ]},
+  {phase:2,focus:"Threshold work introduced. Higher HR comfort. Maintain aerobic base. Volume up on sleds, lunges, weighted movements.",sessions:[
+    {day:"Tuesday",tag:"run",label:"Longer intervals",detail:"1.5km warm-up\n4 × 1.2km @ 3:50–4:00/km — 2 min rest\n1km cool-down",note:null},
+    {day:"Wednesday",tag:"run",label:"Progression tempo",detail:"2km @ 5:00/km → 2km @ 4:45/km → 2km @ 4:30/km → 2km @ 4:15/km\nTotal ~8km.",note:"Running under lactic — this is where your HR rises. Don't bail early. Controlled discomfort."},
+    {day:"Thursday",tag:"hyrox",label:"Row / sled pull / lunges",detail:"5 rounds:\n1km row @ sub 2:00/500m → 20m sled pull 150kg → 30m walking lunges 12.5kg DB\n90s rest\n\nFinisher:\nSandbag cleans 3×8 @ 20kg\n\nTotal ~55 min.",note:"Sandbag cleans: trains the explosive pull and catch pattern — directly carries over to sled pull mechanics and the farmer carry pickup. Do them controlled; the load off the floor mimics sled pull start position."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"10km zone 2 pace",note:null},
+    {day:"Saturday",tag:"strength",label:"Strength",detail:"Trap bar deadlift 4×5\nIncline bench 4×7\nFront squats 4×6\nReverse lunges 3×20 @ 20kg\nRDL 3×7\nChest supported row 3×8\nPush-ups 3×15\nDevils press 3×8 @ 15kg DBs\nPull-ups 4×6\nHanging knee raises 3×12\n20 min C2 bike easy",note:"Devils press: burpee + snatch combo. Directly trains the full-body coordination and shoulder endurance you need to survive BBJ at high HR. Go controlled."},
+    {day:"Sunday",tag:"sim",label:"Benchmarks + run-station-run blocks",detail:"~90 min total.\n\nPart 1 — Benchmarks (record everything — these are your week 5 baseline):\nTest 1: 100m sled push 150kg for time\nRest 4 min\nTest 2: 100–120 wall balls 9kg for time\nRest 4 min\nTest 3: 1km run @ best effort pace\nRest 5 min\n\nWrite these times down. You'll be retesting them in week 8 to measure exactly how much phase 2 has improved you.\n\nPart 2 — Run-station-run blocks, 5 rounds:\nEach round = run, one station, run. 2 min rest between rounds.\n\nRound 1: 1km run @ 4:00/km → 1000m row @ 2:00/500m → 1km run @ 4:00/km\nRound 2: 1km run @ 4:00/km → 30 wall balls 9kg → 1km run @ 4:00/km\nRound 3: 1km run @ 4:00/km → 40m burpee broad jumps → 1km run @ 4:00/km\nRound 4: 1km run @ 4:00/km → 200m farmer carry 2×20kg KB → 1km run @ 4:00/km\nRound 5: 1km run @ 4:00/km → 20m sled pull 150kg → 1km run @ 4:00/km\n\nFinisher — 3 rounds:\n20m sandbag lunges 10kg bag\n12 devils press @ 12.5kg DBs\n500m ski erg\n\n90s rest between finisher rounds.",note:"Benchmarks are done first while completely fresh — that's the only way the data is valid. Record all three times somewhere permanent. The run-station rounds and finisher are the real session volume. Sled push is removed from the rounds since you've already maxed it in the benchmark."},
+  ]},
+  {phase:2,focus:"Threshold running elevated. Race-specific combos start. Wall ball + BBJ combo introduced.",sessions:[
+    {day:"Tuesday",tag:"run",label:"Fast intervals",detail:"4 × (600m @ 3:50/km into 400m @ 3:45/km) — 2 min rest\nPush the back half of each rep.",note:"Running under lactic — the faster 400m split is deliberately uncomfortable."},
+    {day:"Wednesday",tag:"run",label:"Hard tempo",detail:"3km @ 4:40/km → 2km @ 4:30/km → 2km @ 4:50/km (recovery) → 2km @ 4:15/km\nTotal ~9km.",note:"The easy middle km teaches HR drop and surge — a real race-day skill."},
+    {day:"Thursday",tag:"hyrox",label:"Race-style combo",detail:"3 rounds:\n500m run → 30 wall balls 9kg → 500m run → 40m burpee broad jumps\nFocus: quality reps, no dropping pace on runs.\n\nFinisher:\nDB thrusters 3×12 @ 15kg each\n\nTotal ~50 min.",note:"Wall balls + BBJ back-to-back mirrors race-day muscle fatigue. Thrusters at the end: your shoulders and legs are already taxed — this is deliberate overload of the wall ball pattern to build capacity above race demand."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"10km zone 2 pace",note:null},
+    {day:"Saturday",tag:"strength",label:"Strength (reduced)",detail:"Trap bar deadlift 3×5\nIncline bench 3×6\nFront squats 3×6\nReverse lunges 3×20 @ 20kg\nRDL 3×7\nChest supported row 3×8\nPush-ups 3×15\nDB alternating snatches 3×6 each arm\nPull-ups 3×6\nHanging knee raises 3×10",note:"Reduced sets — volume is already high this week from Tuesday/Wednesday. Keep loads moderate, focus on movement quality."},
+    {day:"Sunday",tag:"sim",label:"The Grinder — AMRAP 65 min + finisher",detail:"~80 min total. As many rounds as possible in 65 minutes. No stopping mid-station.\n\nEach round:\n600m run\n500m row\n20m sled push 150kg\n20 wall balls 9kg\n20m burpee broad jumps\n200m farmer carry 2×16kg KB\n\nA strong effort yields 5–6 complete rounds. Don't sprint — find a rhythm you can sustain.\n\nWhen the 65 min cap hits, go straight into the finisher:\n\nFinisher — 3 rounds:\n15 DB thrusters @ 15kg each\n10 devils press @ 12.5kg DBs\n300m row\n\n60s rest between finisher rounds. Total finisher ~12–15 min.",note:"The AMRAP is extended to 65 min — more rounds means more race-specific fatigue. The finisher is non-negotiable even when you're spent. Thrusters and devils press under that level of fatigue is exactly what separates you from where you were in Brisbane."},
+  ]},
+  {phase:2,focus:"Volume peaks. Threshold running high. Race-specific arrangements. Sled weight up to 180kg.",sessions:[
+    {day:"Tuesday",tag:"hyrox",label:"Heavy sled + run combos",detail:"3 rounds:\n400m run @ 4:00/km → 20m sled push 180kg → 800m run @ 4:00/km\n90s rest",note:"Heavier sled (180kg) — drive low, short steps, stay connected through the floor."},
+    {day:"Wednesday",tag:"run",label:"Volume intervals — peak",detail:"7 × 1km @ sub 4:00/km — 90s rest\nHigh volume at race pace. Hardest run week.",note:"7 reps at race pace after heavy sled Tuesday. Legs will be tired. That's the point."},
+    {day:"Thursday",tag:"hyrox",label:"Row / sled pull / BBJ",detail:"4 rounds:\n1000m row @ 1:55/500m → 20m sled pull 150kg → 30m burpee broad jumps\n90s rest\n\nFinisher:\nDevils press 2×6 @ 15kg DBs\n\nTotal ~60 min.",note:"Peak volume week — finisher is only 2 sets, not 3. BBJ after row + sled pull is exactly the race-day fatigue pattern. Devils press at the end: burpee + snatch under accumulated fatigue. Keep it honest — 2 sets is enough."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"10km zone 2 pace",note:null},
+    {day:"Saturday",tag:"strength",label:"Strength",detail:"Trap bar deadlift 4×5\nIncline bench 4×7\nBack squats 4×6\nReverse lunges 3×20 @ 20kg\nRDL 3×7\nChest supported row 3×8\nPush-ups 3×15\nDB thrusters 4×10 @ 17.5kg each\nKB swings 3×20 @ 28kg\nPull-ups 3×10\nHanging knee raises 3×12\n20 min C2 bike easy",note:"Peak strength week. Thrusters heavier than week 3 — this is your wall ball power session. KB swings at 28kg builds posterior chain for sled and BBJ. Don't skip the C2 cooldown."},
+    {day:"Sunday",tag:"sim",label:"Death by distance + gut-check finisher",detail:"~80 min. Rounds get longer. Early rounds are easy — the back half is where the work happens.\n\nRound 1: 400m run → 500m row → 20m sled push 180kg\nRound 2: 600m run → 600m row → 30m sled push 180kg\nRound 3: 800m run → 750m row → 40m sled push 180kg\nRound 4: 1km run → 1000m row → 50m sled push 180kg\n2 min rest between rounds.\n\nFinisher — 5 rounds for time:\n10 wall balls 9kg\n10 burpee broad jumps\n10 DB alternating snatches @ 20kg\n200m ski erg\n\n45s rest between finisher rounds.\n\nNo skipping the finisher. This is the session where you find out what you're made of when the legs are already gone.",note:"Peak volume week. Round 4 sled at 180kg will be the hardest 50m of the block so far. The finisher is designed to be done on empty — wall balls, BBJ, snatches, and ski all in sequence. That full-body coordination under maximum fatigue is exactly what you need to hold form late in a race."},
+  ]},
+  {phase:2,focus:"Mini taper into phase 3. Reduce volume. Maintain sharpness. Final weakness quality session.",sessions:[
+    {day:"Tuesday",tag:"hyrox",label:"Sled + row + ski",detail:"3 rounds:\n20m sled push 150kg → 800m run @ 4:00/km → 800m ski @ 2:00/500m\n60s rest",note:null},
+    {day:"Wednesday",tag:"run",label:"Sharp intervals",detail:"5 × 600m @ 3:55/km\nShort and sharp — maintain quality, not volume.",note:null},
+    {day:"Thursday",tag:"hyrox",label:"Burpees / row / sled pull",detail:"3 rounds:\n15 burpees → 500m row @ 1:50/500m → 20m sled pull 150kg\n\nFinisher:\nKB swings 2×15 @ 24kg\n\nTotal ~40 min.",note:"Burpees as a primer — feel how HR spikes, then row and pull. KB swings at the end keep the posterior chain activated without adding meaningful fatigue. Taper week — 2 sets only."},
+    {day:"Friday",tag:"z2",label:"Zone 2 run",detail:"8km zone 2 pace — legs get relief before phase 3.",note:null},
+    {day:"Saturday",tag:"strength",label:"Light strength",detail:"Trap bar deadlift 3×4 (light)\nBarbell squats 3×5 (light)\nReverse lunges 2×15 @ 15kg\nRDL 2×7 (light)\nChest supported row 3×8\nPush-ups 3×15\nDB alternating snatches 2×6 each arm (light)\nMobility: hips, thoracic, calves.\nNothing to failure — movement quality only.",note:"Taper week into phase 3. Keep everything 60–65% of your working weight. The goal is to feel good, not accumulate fatigue."},
+    {day:"Sunday",tag:"sim",label:"Benchmark retest + extended work",detail:"~70 min total.\n\nPart 1 — Benchmarks (record everything):\nTest 1: 100m sled push 150kg for time\nRest 4 min\nTest 2: 100–120 wall balls 9kg for time\nRest 4 min\nTest 3: 1km run @ best effort pace\nRest 5 min\n\nPart 2 — Extended work, 4 rounds:\n500m row @ hard pace\n20m sled pull 150kg\n20 KB swings @ 24kg\n15 DB thrusters @ 15kg each\n400m run @ 4:00/km\n90s rest between rounds\n\nPart 3 — Flush (no rest):\n2 × 400m run @ easy pace\n2 × 200m ski erg @ easy pace\n\nCompare all benchmark times to week 5.",note:"Benchmarks first while you're fresh — you need clean data. Part 2 is where you put in the real work once the tests are done. Part 3 flushes the legs. If both sled and wall ball times are down from week 5, phase 2 worked."},
+  ]},
+  {phase:3,focus:"Strong aerobic base used as recovery. Threshold running combined with race-pace stations. Extra weakness work added.",sessions:[
+    {day:"Tuesday",tag:"hyrox",label:"Race-pace sled combos",detail:"4 rounds:\n1km run @ 3:50–3:55/km → 20m sled push 180kg → 1km assault bike 300W\n2 min rest",note:"Sled at 180kg after a fast km. Hold your run pace on the next rep."},
+    {day:"Wednesday",tag:"run",label:"Threshold + sprint finish",detail:"5 × 700m @ 3:50/km — 2 min rest\n3 × 300m @ 3:40/km\nThe 300s are your sprint finish — train the gear change.",note:"Running under lactic — the 300m reps after the 700s are deliberately painful. Race day feels exactly like this."},
+    {day:"Thursday",tag:"hyrox",label:"Row / sled / BBJ",detail:"4 rounds:\n1km row → 20m sled pull 150kg → 20m burpee broad jumps\nRace pace throughout.\n\nFinisher:\nSandbag cleans 3×6 @ 20kg\n\nTotal ~55 min.",note:"BBJ quality check: powerful when fatigued? Focus on hip snap and soft landing. Sandbag cleans: race-specific pulling pattern — keeps the sled pull muscles loaded while reinforcing explosive hip extension for BBJ."},
+    {day:"Friday",tag:"z2",label:"Recovery run",detail:"10km easy zone 2 — pure recovery.\nHR should stay well below threshold.",note:null},
+    {day:"Saturday",tag:"strength",label:"Strength — maintain",detail:"Trap bar deadlift 3×5\nIncline bench 3×7\nFront squats 3×6\nReverse lunges 3×20 @ 20kg\nRDL 3×7\nChest supported row 3×8\nPush-ups 3×15\nDevils press 3×6 @ 12.5kg DBs\nPull-ups 3×10\nHanging knee raises 3×8\nModerate loads — maintaining, not building.",note:"Devils press kept light — this is maintenance. You're 1 week out from race week. Keep the movement patterns sharp without digging a hole."},
+    {day:"Sunday",tag:"sim",label:"Race order sim — full sequence",detail:"~70 min. Full station sequence in race order with runs between every station. 85–90% effort.\n\n1km run @ 4:00/km\n1000m ski erg\n1km run @ 4:00/km\n50m sled push 150kg\n1km run @ 4:05/km\n50m sled pull 100kg\n1km run @ 4:05/km\n80m burpee broad jumps\n1km run @ 4:10/km\n1000m row\n1km run @ 4:10/km\n200m farmer carry 2×20kg KB\n1km run @ 4:10/km\n80m sandbag lunges 10kg\n1km run @ 4:10/km\n100 wall balls 9kg\n\nPractise transitions — smooth is fast.",note:"First full race-order run-through. Note which runs you struggle to hold pace on — those are the stations costing you time on race day."},
+  ]},
+  {phase:3,focus:"Race sharpness. Taper volume. Hit each weakness one final time at race pace or above. Trust the block.",sessions:[
+    {day:"Tuesday",tag:"hyrox",label:"Race-pace wall ball circuit",detail:"3 rounds:\n4 min @ race pace (4:00/km) → 30 wall balls 9kg → 4 min @ race pace\nRest 3 min between rounds.",note:"Final wall ball session. Aim for unbroken sets. Note when you break — that's your set size for race day."},
+    {day:"Wednesday",tag:"run",label:"Short sharp intervals",detail:"5 × 500m @ 3:45–3:50/km — 90s rest\nLeg freshener — short, fast, not exhausting.",note:null},
+    {day:"Thursday",tag:"hyrox",label:"Final sled + BBJ session",detail:"2 rounds:\n100m sled push 150kg for time → rest 4 min → 40m BBJ for time → rest 4 min\nRecord your times — compare to week 5 and week 8.",note:"Final benchmark: how much have your sled and BBJ times improved? That's 10 weeks of work."},
+    {day:"Friday",tag:"z2",label:"Easy shakeout",detail:"20–30 min very easy jog.\nIf tired, cut to 15 min or skip.",note:null},
+    {day:"Saturday",tag:"strength",label:"Rest / mobility only",detail:"Full rest or light mobility only.\nHip flexors, calves, thoracic rotation.\nNo loading. Save everything for race day.",note:null},
+    {day:"Sunday",tag:"sim",label:"The Send-Off",detail:"~50 min. Final session of the block. About feel and confidence — not fitness.\n\n2 rounds of:\n1km run @ race pace\n20m sled push 150kg\n500m row\n10 wall balls 9kg\n20m burpee broad jumps\n1km run @ race pace\n\nRest 3 min between rounds.\nFinish: 1 × 200m run flat out.\n\nBlock done. Race week begins.",note:"Keep it crisp, keep it short. Leave the gym feeling sharp — not tired. Every session has been building toward race day. Trust it."},
+  ]},
+];
+
+const PM={1:{label:"Foundation",wbCls:"wb-p1",focusCls:"",tabAct:"ap1",wCls:"p1"},2:{label:"Build",wbCls:"wb-p2",focusCls:"p2",tabAct:"ap2",wCls:"p2"},3:{label:"Race Prep",wbCls:"wb-p3",focusCls:"",tabAct:"ap3",wCls:"p3"}};
+const DAY_CLS={Tuesday:"d-tue",Wednesday:"d-wed",Thursday:"d-thu",Friday:"d-fri",Saturday:"d-sat",Sunday:"d-sun"};
+const TAG_CLS={run:"tt-run",z2:"tt-z2",strength:"tt-strength",sim:"tt-sim",hyrox:"tt-hyrox"};
+const TAG_LBL={run:"Intervals",z2:"Zone 2",strength:"Strength",sim:"Sim",hyrox:"Hyrox"};
+
+let cw=0,completed={},expanded={},feedback={},aiResponses={};
+let db=null;
+
+function openDB(){
+  return new Promise((res,rej)=>{
+    const req=indexedDB.open('hyrox_db',2);
+    req.onupgradeneeded=e=>{
+      const d=e.target.result;
+      if(!d.objectStoreNames.contains('kv'))d.createObjectStore('kv');
+    };
+    req.onsuccess=e=>{db=e.target.result;res(db);};
+    req.onerror=()=>rej();
+  });
+}
+
+function dbGet(key){
+  return new Promise((res)=>{
+    if(!db){res(null);return;}
+    const tx=db.transaction('kv','readonly');
+    const req=tx.objectStore('kv').get(key);
+    req.onsuccess=()=>res(req.result||null);
+    req.onerror=()=>res(null);
+  });
+}
+
+function dbSet(key,val){
+  return new Promise((res)=>{
+    if(!db){res();return;}
+    const tx=db.transaction('kv','readwrite');
+    tx.objectStore('kv').put(val,key);
+    tx.oncomplete=()=>res();
+    tx.onerror=()=>res();
+  });
+}
+
+function save(){
+  const d1=JSON.stringify(completed);
+  const d2=JSON.stringify(feedback);
+  const d3=JSON.stringify(aiResponses);
+  dbSet('hyrox_v3',d1);dbSet('hyrox_fb',d2);dbSet('hyrox_ai',d3);
+  try{localStorage.setItem('hyrox_v3',d1);localStorage.setItem('hyrox_fb',d2);localStorage.setItem('hyrox_ai',d3);}catch(e){}
+}
+
+async function loadAndStart(){
+  try{
+    await openDB();
+    const[d1,d2,d3]=await Promise.all([dbGet('hyrox_v3'),dbGet('hyrox_fb'),dbGet('hyrox_ai')]);
+    const fb=(k)=>{try{return localStorage.getItem(k);}catch(e){return null;}};
+    const s1=d1||fb('hyrox_v3');if(s1)try{completed=JSON.parse(s1);}catch(e){}
+    const s2=d2||fb('hyrox_fb');if(s2)try{feedback=JSON.parse(s2);}catch(e){}
+    const s3=d3||fb('hyrox_ai');if(s3)try{aiResponses=JSON.parse(s3);}catch(e){}
+  }catch(e){
+    try{
+      const s1=localStorage.getItem('hyrox_v3');if(s1)completed=JSON.parse(s1);
+      const s2=localStorage.getItem('hyrox_fb');if(s2)feedback=JSON.parse(s2);
+      const s3=localStorage.getItem('hyrox_ai');if(s3)aiResponses=JSON.parse(s3);
+    }catch(e2){}
+  }
+  render();
+}
+
+function totalSessions(){return WEEKS.reduce((t,w)=>t+w.sessions.length,0);}
+function doneCount(){return Object.values(completed).filter(Boolean).length;}
+function weekDone(wi){return WEEKS[wi].sessions.filter((_,si)=>completed[`${wi}_${si}`]).length;}
+function allDone(wi){return weekDone(wi)===WEEKS[wi].sessions.length;}
+
+function setRating(key,r){
+  if(!feedback[key])feedback[key]={};
+  feedback[key].rating=r;
+  save();render();
+}
+
+function saveFeedbackText(key){
+  const ta=document.getElementById('ta_'+key);
+  if(!ta)return;
+  if(!feedback[key])feedback[key]={};
+  feedback[key].text=ta.value;
+  save();
+  const btn=document.getElementById('sfb_'+key);
+  if(btn){btn.textContent='Saved ✓';btn.style.color='var(--volt)';setTimeout(()=>{if(btn){btn.textContent='Save notes';btn.style.color='';}},1500);}
+}
+
+async function getAIResponse(key,weekIdx,sessionIdx){
+  const s=WEEKS[weekIdx].sessions[sessionIdx];
+  const fb=feedback[key]||{};
+  const rating=fb.rating?fb.rating+'/10':'not rated';
+  const notes=fb.text&&fb.text.trim()?fb.text:'no notes provided';
+  const btn=document.getElementById('aibtn_'+key);
+  const resDiv=document.getElementById('aires_'+key);
+  if(btn){btn.disabled=true;btn.textContent='Analysing...';}
+  if(resDiv){resDiv.style.display='block';resDiv.innerHTML='<span class="ai-thinking">Reading your session data...</span>';}
+  const prompt=`You are a Hyrox-specific performance coach. An athlete has completed a training session and logged their feedback. Give a concise, practical response (4-6 sentences) focused on what to adjust for the next similar session. Be direct and specific — no fluff, no generic advice.
+
+Session: Week ${weekIdx+1}, ${s.day} — ${s.label}
+Type: ${s.tag}
+Session: ${s.detail}
+Rating: ${rating}
+Athlete notes: ${notes}
+
+Respond with sharp, actionable coaching. If rating is 8-10 push further. If 5-7 identify the bottleneck. If 1-4 address what went wrong and how to fix it. Reference specific details from the session where possible.`;
+  try{
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})
+    });
+    const data=await resp.json();
+    const text=data.content&&data.content[0]?data.content[0].text:'Could not generate a response.';
+    if(!aiResponses[key])aiResponses[key]={};
+    aiResponses[key].response=text;
+    aiResponses[key].timestamp=new Date().toLocaleDateString('en-AU',{day:'numeric',month:'short'});
+    save();
+    if(resDiv)resDiv.innerHTML=`<strong>Coach AI · ${aiResponses[key].timestamp}</strong>${text}`;
+    if(btn){btn.disabled=false;btn.textContent='Regenerate';}
+  }catch(e){
+    if(resDiv)resDiv.innerHTML='<span class="ai-thinking">Error — check your connection and try again.</span>';
+    if(btn){btn.disabled=false;btn.textContent='Get AI coaching';}
+  }
+}
+
+function render(){
+  const w=WEEKS[cw],pm=PM[w.phase];
+  const total=totalSessions(),done=doneCount();
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('pct').textContent=pct+'%';
+  document.getElementById('fill').style.width=pct+'%';
+  document.getElementById('stats').innerHTML=`
+    <div class="stat"><span class="stat-val">${done}/${total}</span><span class="stat-lbl">Sessions done</span></div>
+    <div class="stat"><span class="stat-val">${weekDone(cw)}/${w.sessions.length}</span><span class="stat-lbl">This week</span></div>
+    <div class="stat"><span class="stat-val">${cw+1}/10</span><span class="stat-lbl">Week</span></div>
+  `;
+  const pt=document.getElementById('phaseTabs');
+  pt.innerHTML='';
+  [[1,"Wks 1–4 · Foundation"],[2,"Wks 5–8 · Build"],[3,"Wks 9–10 · Race Prep"]].forEach(([p,lbl])=>{
+    const b=document.createElement('button');
+    b.className='ptab'+(w.phase===p?' '+PM[p].tabAct:'');
+    b.textContent=lbl;b.onclick=()=>{const fi=WEEKS.findIndex(x=>x.phase===p);if(fi>=0){cw=fi;render();}};
+    pt.appendChild(b);
+  });
+  const ws=document.getElementById('weekScroller');
+  ws.innerHTML='';
+  WEEKS.forEach((wk,i)=>{
+    const b=document.createElement('button');
+    b.className=`wbtn ${PM[wk.phase].wCls}${i===cw?' aw':''}`;
+    b.textContent=i+1;b.onclick=()=>{cw=i;render();};
+    if(allDone(i)){const d=document.createElement('span');d.className='done-pip';b.appendChild(d);}
+    ws.appendChild(b);
+  });
+  document.getElementById('weekTitle').textContent=`Week ${cw+1}`;
+  const wb=document.getElementById('weekBadge');
+  wb.className='week-badge '+pm.wbCls;wb.textContent=pm.label;
+  const pf=document.getElementById('phaseFocus');
+  pf.className='phase-focus'+(pm.focusCls?' '+pm.focusCls:'');
+  pf.textContent=w.focus;
+  const sc=document.getElementById('sessions');
+  sc.innerHTML='';
+  w.sessions.forEach((s,si)=>{
+    const key=`${cw}_${si}`,isDone=!!completed[key],isOpen=!!expanded[key],isWeak=!!s.note;
+    const fb=feedback[key]||{};
+    const ai=aiResponses[key]||{};
+    const card=document.createElement('div');
+    card.className='card'+(isDone?' done':'');
+    const head=document.createElement('div');
+    head.className='card-head';
+    let ratingBadge='';
+    if(fb.rating){
+      const col=fb.rating>=8?'var(--volt)':fb.rating>=5?'#C8A000':'#E25050';
+      ratingBadge=`<span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:900;color:${col};flex-shrink:0;">${fb.rating}</span>`;
+    }
+    head.innerHTML=`<span class="day-pill ${DAY_CLS[s.day]}">${s.day}</span><span class="card-title">${s.label}</span>${ratingBadge}<span class="type-tag ${isWeak?'tt-weak':TAG_CLS[s.tag]}">${isWeak?'Weakness':TAG_LBL[s.tag]}</span><span class="chevron${isOpen?' open':''}">▼</span>`;
+    const chk=document.createElement('button');
+    chk.className='chk'+(isDone?' on':'');
+    chk.textContent=isDone?'✓':'';
+    chk.onclick=(e)=>{e.stopPropagation();completed[key]=!completed[key];save();render();};
+    head.appendChild(chk);
+    head.onclick=(e)=>{if(e.target===chk||chk.contains(e.target))return;expanded[key]=!isOpen;render();};
+    card.appendChild(head);
+    if(isOpen){
+      const body=document.createElement('div');
+      body.className='card-body';
+      body.innerHTML=`<div class="session-detail">${s.detail}</div>`;
+      if(s.note){const n=document.createElement('div');n.className='coach-note';n.innerHTML=`<strong>Coach note</strong>${s.note}`;body.appendChild(n);}
+
+      const fbSec=document.createElement('div');
+      fbSec.className='feedback-section';
+
+      const rLabel=document.createElement('span');
+      rLabel.className='feedback-label';rLabel.textContent='Rate this session';
+      fbSec.appendChild(rLabel);
+
+      const rRow=document.createElement('div');
+      rRow.className='rating-row';
+      for(let r=1;r<=10;r++){
+        const rb=document.createElement('button');
+        rb.className='rating-btn'+(fb.rating===r?' sel':'');
+        rb.textContent=r;
+        rb.onclick=((_r,_k)=>()=>setRating(_k,_r))(r,key);
+        rRow.appendChild(rb);
+      }
+      fbSec.appendChild(rRow);
+
+      const nLabel=document.createElement('span');
+      nLabel.className='feedback-label';nLabel.textContent='Session notes';
+      fbSec.appendChild(nLabel);
+
+      const ta=document.createElement('textarea');
+      ta.className='feedback-textarea';ta.id='ta_'+key;
+      ta.placeholder='What went well? What was hard? Any numbers — pace, sled time, round count, wall ball sets...';
+      ta.value=fb.text||'';
+      fbSec.appendChild(ta);
+
+      const saveBtn=document.createElement('button');
+      saveBtn.className='save-feedback-btn';saveBtn.id='sfb_'+key;
+      saveBtn.textContent='Save notes';
+      saveBtn.onclick=()=>saveFeedbackText(key);
+      fbSec.appendChild(saveBtn);
+
+      const aiBtn=document.createElement('button');
+      aiBtn.className='ai-btn';aiBtn.id='aibtn_'+key;
+      aiBtn.textContent=ai.response?'Regenerate AI coaching':'Get AI coaching';
+      aiBtn.onclick=((_k,_wi,_si)=>()=>getAIResponse(_k,_wi,_si))(key,cw,si);
+      fbSec.appendChild(aiBtn);
+
+      const resDiv=document.createElement('div');
+      resDiv.className='ai-response';resDiv.id='aires_'+key;
+      if(ai.response){
+        resDiv.innerHTML=`<strong>Coach AI · ${ai.timestamp||''}</strong>${ai.response}`;
+      } else {
+        resDiv.style.display='none';
+      }
+      fbSec.appendChild(resDiv);
+
+      body.appendChild(fbSec);
+      card.appendChild(body);
+    }
+    sc.appendChild(card);
+  });
+}
+
+loadAndStart();
+</script>
+</body>
+</html>
